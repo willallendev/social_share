@@ -43,6 +43,27 @@ class SocialShare {
     return response;
   }
 
+  static Future<String> shareVideoToInstagramStory(
+      String videoPath,
+      String backgroundTopColor,
+      String backgroundBottomColor,
+      String attributionURL) async {
+    Map<String, dynamic> args;
+    if (Platform.isIOS) {
+      args = <String, dynamic>{
+        "videoPath": videoPath,
+        "backgroundTopColor": backgroundTopColor,
+        "backgroundBottomColor": backgroundBottomColor,
+        "attributionURL": attributionURL
+      };
+    } else {
+      throw MissingPluginException('Feature not available to android');
+    }
+    final String response =
+    await _channel.invokeMethod('shareVideoToInstagramStory', args);
+    return response;
+  }
+
   static Future<String> shareInstagramStorywithBackground(
       String imagePath,
       String backgroundTopColor,
