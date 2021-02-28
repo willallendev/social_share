@@ -150,6 +150,28 @@ class SocialShare {
     return response;
   }
 
+  static Future<String> shareVideoToFacebookStory(
+      String videoPath,
+      String backgroundTopColor,
+      String backgroundBottomColor,
+      String attributionURL,
+      {String appId}) async {
+    Map<String, dynamic> args;
+    if (Platform.isIOS) {
+      args = <String, dynamic>{
+        "videoPath": videoPath,
+        "backgroundTopColor": backgroundTopColor,
+        "backgroundBottomColor": backgroundBottomColor,
+        "attributionURL": attributionURL,
+      };
+    } else {
+      throw MissingPluginException('Feature not available to android');
+    }
+    final String response =
+    await _channel.invokeMethod('shareVideoToFacebookStory', args);
+    return response;
+  }
+
   static Future<String> shareTwitter(String captionText,
       {List<String> hashtags, String url, String trailingText}) async {
     Map<String, dynamic> args;

@@ -126,7 +126,44 @@
             result(@"not supported or no facebook installed");
         }
         
-    } else if([@"shareFacebookStory" isEqualToString:call.method]){
+    } else if([@"shareVideoToFacebookStory" isEqualToString:call.method]){
+              NSString *videoPath = call.arguments[@"videoPath"];
+              NSString *backgroundTopColor = call.arguments[@"backgroundTopColor"];
+              NSString *backgroundBottomColor = call.arguments[@"backgroundBottomColor"];
+              NSString *attributionURL = call.arguments[@"attributionURL"];
+
+              NSString *path = [[NSBundle mainBundle] pathForResource:@"Info" ofType:@"plist"];
+              NSDictionary *dict = [NSDictionary dictionaryWithContentsOfFile:path];
+              NSString *appID = [dict objectForKey:@"FacebookAppID"];
+              NSFileManager *fileManager = [NSFileManager defaultManager];
+              BOOL isFileExist = [fileManager fileExistsAtPath: videoPath];
+              UIImage *videoShare;
+              if (isFileExist) {
+                  videoShare = [[NSData alloc] initWithContentsOfFile:videoPath];
+              }
+              NSURL *urlScheme = [NSURL URLWithString:@"facebook-stories://share"];
+              if ([[UIApplication sharedApplication] canOpenURL:urlScheme]) {
+
+                  // Assign background image asset and attribution link URL to pasteboard
+                  NSArray *pasteboardItems = @[@{@"com.facebook.sharedSticker.backgroundVideo" : videoShare,
+                                                 @"com.facebook.sharedSticker.backgroundTopColor" : backgroundTopColor,
+                                                 @"com.facebook.sharedSticker.backgroundBottomColor" : backgroundBottomColor,
+                                                 @"com.facebook.sharedSticker.contentURL" : attributionURL,
+                                                 @"com.facebook.sharedSticker.appID" : appID}];
+                  if (@available(iOS 10.0, *)) {
+                      NSDictionary *pasteboardOptions = @{UIPasteboardOptionExpirationDate : [[NSDate date] dateByAddingTimeInterval:60 * 5]};
+                      // This call is iOS 10+, can use 'setItems' depending on what versions you support
+                      [[UIPasteboard generalPasteboard] setItems:pasteboardItems options:pasteboardOptions];
+
+                      [[UIApplication sharedApplication] openURL:urlScheme options:@{} completionHandler:nil];
+                      result(@"sharing");
+                  } else {
+                      result(@"this only supports iOS 10+");
+                  }
+              } else {
+                  result(@"not supported or no facebook installed");
+              }
+          } else if([@"shareFacebookStory" isEqualToString:call.method]){
         NSString *stickerImage = call.arguments[@"stickerImage"];
         NSString *backgroundTopColor = call.arguments[@"backgroundTopColor"];
         NSString *backgroundBottomColor = call.arguments[@"backgroundBottomColor"];
